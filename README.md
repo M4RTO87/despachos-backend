@@ -18,6 +18,11 @@ API REST construida con Spring Boot 3.4.4 y Java 17 para la gestión de despacho
 | POST | /api/v1/despachos | Crear nuevo despacho |
 | PUT | /api/v1/despachos/{id} | Actualizar despacho |
 | DELETE | /api/v1/despachos/{id} | Eliminar despacho |
+| GET | /api/v1/ventas | Listar todas las ventas |
+| GET | /api/v1/ventas/{id} | Obtener venta por ID |
+| POST | /api/v1/ventas | Crear nueva venta |
+| PUT | /api/v1/ventas/{id} | Actualizar venta |
+| DELETE | /api/v1/ventas/{id} | Eliminar venta |
 
 Documentación Swagger disponible en: `http://localhost:8081/swagger-ui.html`
 
@@ -45,12 +50,21 @@ docker compose ps
 
 # 4. Probar la API
 curl http://localhost:8081/api/v1/despachos
+curl http://localhost:8081/api/v1/ventas
 ```
 
 ## Estructura del Dockerfile (multi-stage)
 
 - **Stage 1 (builder):** usa `maven:3.9.6-eclipse-temurin-17-alpine` para compilar el `.jar`
 - **Stage 2 (runtime):** usa `eclipse-temurin:17-jre-alpine` solo con el JRE, usuario no root
+
+## Persistencia de datos
+
+Se utiliza un **named volume** llamado `dbdata` para MySQL. Ventajas sobre bind mount:
+- Docker gestiona la ubicación automáticamente
+- Mayor portabilidad entre entornos (local, EC2)
+- No depende de rutas del sistema operativo host
+- Los datos persisten aunque el contenedor se reinicie o recree
 
 ## Pipeline CI/CD
 
@@ -75,3 +89,11 @@ El pipeline `.github/workflows/deploy-backend.yml` se activa con push en la rama
 | DB_NAME | Nombre de la base de datos |
 | DB_USERNAME | Usuario de la base de datos |
 | DB_PASSWORD | Contraseña de la base de datos |
+
+## Infraestructura AWS
+
+| Recurso | Valor |
+|---------|-------|
+| EC2 Backend | IP privada: 10.0.2.137 · Subred privada 10.0.2.0/24 |
+| ECR Registry | 211125736105.dkr.ecr.us-east-1.amazonaws.com |
+| Región | us-east-1 |
